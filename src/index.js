@@ -4,6 +4,7 @@ const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const Web3 = require('web3')
 const GHUSD = require('./contracts/ghusd')
+const ANS = require('./contracts/ans')
 
 // true = use mainnet config, false = use testnet config
 const MAINNET = false
@@ -29,9 +30,13 @@ bip39.mnemonicToSeed(mnemonic).then((seed) => {
 
   // FUND ACCOUNT WITH GHU
 
-  // Send GHU or call any of the example transactions
+  /* Example Transactions */
   sendGHU(walletAddress)
   // sendGHUSD(walletAddress)
+  // assignName(walletAddress)
+
+  /* Example Calls (does not require GHU to execute) */
+  // resolveName()
 })
 
 function deriveAddress(root, path) {
@@ -105,6 +110,7 @@ async function sendGHU(walletAddress) {
 // Sends 1 GHUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
 async function sendGHUSD(walletAddress) {
   // Construct data. Get this from the ABI: /contracts/ghusd.js
+  // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#encodefunctioncall
   const data = web3.eth.abi.encodeFunctionCall(
     {
       "constant": false,
@@ -143,6 +149,63 @@ async function sendGHUSD(walletAddress) {
   try {
     const txid = await sendTx(serializedTx)
     console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
+}
+
+// Assigns a name in the Address Name Service Contract
+async function assignName(walletAddress) {
+  // Construct data. Get this from the ABI: /contracts/ans.js
+  // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#encodefunctioncall
+  const data = web3.eth.abi.encodeFunctionCall(
+    {
+      "type": "function",
+      "stateMutability": "nonpayable",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "success"
+        }
+      ],
+      "name": "assignName",
+      "inputs": [
+        {
+          "type": "string",
+          "name": "name"
+        }
+      ],
+      "constant": false
+    }, 
+    ['testname'],
+  )
+
+  const serializedTx = await serializeTx({
+    walletAddress,
+    to: MAINNET ? ANS.mainnet : ANS.testnet,
+    gasLimit: 100000,
+    value: 0,
+    data,
+  })
+
+  try {
+    const txid = await sendTx(serializedTx)
+    console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
+}
+
+// Resolves a name in the Address Name Service Contract.
+// This des not require any GHU to execute.
+async function resolveName() {
+  const contractAddr = MAINNET ? ANS.mainnet : ANS.testnet
+  const contract = new web3.eth.Contract(ANS.abi, contractAddr)
+
+  try {
+    const resolvedAddr = await contract.methods.resolveName('testname').call()
+    console.log(`resolved address: ${resolvedAddr}`)
   } catch (err) {
     console.error(`tx error: ${err.message}`)
   }
