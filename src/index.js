@@ -3,6 +3,7 @@ const hdkey = require('hdkey')
 const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const Web3 = require('web3')
+const GRC223 = require('./contracts/grc223')
 const GHUSD = require('./contracts/ghusd')
 const ANS = require('./contracts/ans')
 
@@ -37,8 +38,9 @@ async function runDemo() {
   // await sendGHUSD(walletAddress)
   // await assignName(walletAddress)
   // await setMinLimit(walletAddress)
+  await createToken(walletAddress)
 
-  // Call contracts (does not require GHU to execute)
+  // Call transactions (does not require GHU to execute)
   // await resolveName()
 }
 runDemo()
@@ -105,9 +107,19 @@ async function sendTx(serializedTx) {
   })
 }
 
-/* ==================== */
-/* EXAMPLE TRANSACTIONS */
-/* ==================== */
+function toLowestDenom(value, decimals) {
+  if (!value || !decimals) {
+    return ''
+  }
+
+  return web3.utils.toBN(value)
+    .mul(web3.utils.toBN(10).pow(web3.utils.toBN(decimals)))
+    .toString(10);
+}
+
+/* ================= */
+/* SEND TRANSACTIONS */
+/* ================= */
 
 // Sends 1 GHU (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
 async function sendGHU(walletAddress) {
@@ -163,7 +175,6 @@ async function sendGHUSD(walletAddress) {
     walletAddress,
     to: MAINNET ? GHUSD.mainnet : GHUSD.testnet,
     gasLimit: 100000,
-    value: 0,
     data,
   })
 
@@ -206,7 +217,6 @@ async function assignName(walletAddress) {
     walletAddress,
     to: MAINNET ? ANS.mainnet : ANS.testnet,
     gasLimit: 100000,
-    value: 0,
     data,
   })
 
@@ -256,7 +266,6 @@ async function setMinLimit(walletAddress) {
     walletAddress,
     to: MAINNET ? ANS.mainnet : ANS.testnet,
     gasLimit: 100000,
-    value: 0,
     data,
   })
 
@@ -270,8 +279,36 @@ async function setMinLimit(walletAddress) {
 
 // Creates a new GRC223 Token
 async function createToken(walletAddress) {
+  const name = 'Test Token'
+  const symbol = 'TTT'
+  const decimals = 18
+  const totalSupply = toLowestDenom(100, decimals) // 100 tokens total supply
+  const owner = walletAddress.address
 
+  let params = web3.eth.abi.encodeParameters(
+    ['string', 'string', 'uint8', 'uint256', 'address'],
+    [name, symbol, decimals, totalSupply, owner],
+  )
+  params = web3.utils.stripHexPrefix(params)
+  const data = GRC223.bytecode + params
+
+  const serializedTx = await serializeTx({
+    walletAddress,
+    gasLimit: 2000000,
+    data,
+  })
+
+  try {
+    const txid = await sendTx(serializedTx)
+    console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
 }
+
+/* ================= */
+/* CALL TRANSACTIONS */
+/* ================= */
 
 // Resolves a name in the Address Name Service Contract.
 // This does not require any GHU to execute.
