@@ -7,9 +7,9 @@ const GRC223 = require('./contracts/grc223')
 const GHUSD = require('./contracts/ghusd')
 const ANS = require('./contracts/ans')
 
-/* ====== */
-/* CONFIG */
-/* ====== */
+/* =============== */
+/* CONFIG 初始化配置 */
+/* =============== */
 const MAINNET = false // true to make transactions on the mainnet
 
 const RPC_MAINNET = 'https://api.ghuchain.com'
@@ -117,9 +117,9 @@ function toLowestDenom(value, decimals) {
     .toString(10);
 }
 
-/* ================= */
-/* SEND TRANSACTIONS */
-/* ================= */
+/* ========================= */
+/* SEND TRANSACTIONS 发送交易 */
+/* ========================= */
 
 // Sends 1 GHU (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
 async function sendGHU(walletAddress) {
@@ -306,9 +306,9 @@ async function createToken(walletAddress) {
   }
 }
 
-/* ================= */
-/* CALL TRANSACTIONS */
-/* ================= */
+/* ============================ */
+/* CALL TRANSACTIONS 调用静态函数 */
+/* ============================ */
 
 // Resolves a name in the Address Name Service Contract.
 // This does not require any GHU to execute.
