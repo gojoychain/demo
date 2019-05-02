@@ -26,7 +26,7 @@ async function runDemo() {
   // Derive wallet address at path 0
   const walletAddress = deriveAddress(root, 0)
 
-  // Deriving addresses for example
+  // Deriving other addresses from same root as example
   deriveAddress(root, 1)
   deriveAddress(root, 2)
   deriveAddress(root, 3)
