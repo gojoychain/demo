@@ -4,6 +4,7 @@
   "description": "Demo for interacting with Ghuchain node",
   "main": "index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "npm test"
   },
   "repository": {
@@ -18,6 +19,7 @@
   "homepage": "https://github.com/ghuchain/demo#readme",
   "dependencies": {
     "bip39": "^3.0.1",
+    "ethereumjs-util": "^6.1.0",
     "hdkey": "^1.1.1",
     "web3": "^1.0.0-beta.53"
   }
