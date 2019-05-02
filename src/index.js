@@ -34,11 +34,11 @@ async function runDemo() {
   // FUND ACCOUNT WITH GHU
 
   // Send transactions
-  // await sendGHU(walletAddress)
+  await sendGHU(walletAddress)
   // await sendGHUSD(walletAddress)
   // await assignName(walletAddress)
   // await setMinLimit(walletAddress)
-  await createToken(walletAddress)
+  // await createToken(walletAddress)
 
   // Call transactions (does not require GHU to execute)
   // await resolveName()
