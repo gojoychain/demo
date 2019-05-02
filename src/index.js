@@ -31,7 +31,7 @@ bip39.mnemonicToSeed(mnemonic).then((seed) => {
 
   // Send GHU or call any of the example transactions
   sendGHU(walletAddress)
-  sendGHUSD(walletAddress)
+  // sendGHUSD(walletAddress)
 })
 
 function deriveAddress(root, path) {
@@ -52,9 +52,11 @@ function deriveAddress(root, path) {
   }
 }
 
-async function serializeTx({ fromPrivKey, to, gasLimit, gasPrice, value, data }) {
-  const nonce = await web3.eth.getTransactionCount(from, 'pending')
+async function serializeTx({ walletAddress, to, gasLimit, gasPrice, value, data }) {
+  // Get the current nonce
+  const nonce = await web3.eth.getTransactionCount(walletAddress.address, 'pending')
 
+  // Construct params
   const txParams = {
     to,
     nonce: web3.utils.toHex(nonce),
@@ -64,32 +66,43 @@ async function serializeTx({ fromPrivKey, to, gasLimit, gasPrice, value, data })
     data,
   }
 
+  // Sign and serialize tx
   const tx = new Transaction(txParams)
-  tx.sign(Buffer.from(fromPrivKey, 'hex'))
+  tx.sign(Buffer.from(walletAddress.privateKey, 'hex'))
   const serializedTx = ethUtil.addHexPrefix(tx.serialize().toString('hex'))
 	console.log(`serializedTx: ${serializedTx}`)
   return serializedTx
 }
 
 async function sendTx(serializedTx) {
-  web3.eth.sendSignedTransaction(serializedTx)
+  return new Promise((resolve, reject) => {
+    web3.eth.sendSignedTransaction(serializedTx)
     .once('transactionHash', (hash) => resolve(hash))
     .on('error', (err) => reject(err))
+  })
 }
 
 /* ==================== */
 /* EXAMPLE TRANSACTIONS */
 /* ==================== */
 
+// Sends 1 GHU (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
 async function sendGHU(walletAddress) {
   const serializedTx = await serializeTx({
-    fromPrivKey: walletAddress.privateKey,
+    walletAddress,
     to: '0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428',
-    value: 1e18 // 1 GHU = 1e18. Number or String to handle big numbers.
+    value: '1000000000000000000',
   })
-  sendTx(serializedTx)
+
+  try {
+    const txid = await sendTx(serializedTx)
+    console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
 }
 
+// Sends 1 GHUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
 async function sendGHUSD(walletAddress) {
   // Construct data. Get this from the ABI: /contracts/ghusd.js
   const data = web3.eth.abi.encodeFunctionCall(
@@ -116,15 +129,21 @@ async function sendGHUSD(walletAddress) {
       "stateMutability": "nonpayable",
       "type": "function"
     }, 
-    ['0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428', 1e18],
+    ['0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428', '1000000000000000000'],
   )
 
   const serializedTx = await serializeTx({
-    fromPrivKey: walletAddress.privateKey,
+    walletAddress,
     to: MAINNET ? GHUSD.mainnet : GHUSD.testnet,
     gasLimit: 100000,
     value: 0,
     data,
   })
-  sendTx(serializedTx)
+
+  try {
+    const txid = await sendTx(serializedTx)
+    console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
 }
