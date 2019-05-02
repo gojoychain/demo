@@ -6,23 +6,25 @@ const Web3 = require('web3')
 const GHUSD = require('./contracts/ghusd')
 const ANS = require('./contracts/ans')
 
-// true = use mainnet config, false = use testnet config
-const MAINNET = false
+/* ====== */
+/* CONFIG */
+/* ====== */
+const MAINNET = false // true to make transactions on the mainnet
+
 const RPC_MAINNET = 'https://api.ghuchain.com'
 const RPC_TESTNET = 'https://testapi.ghuchain.com'
-
 const web3 = MAINNET ? new Web3(RPC_MAINNET) : new Web3(RPC_TESTNET)
 
-// Generate master seed phrase
-const mnemonic = bip39.generateMnemonic()
-console.log(`mnemonic: ${mnemonic}`)
+async function runDemo() {
+  // Generate master seed phrase
+  const mnemonic = generateMnemonic()
 
-bip39.mnemonicToSeed(mnemonic).then((seed) => {
-  const root = hdkey.fromMasterSeed(seed)
-  const masterPrivateKey = root.privateKey.toString('hex')
-	console.log(`masterPrivateKey: ${masterPrivateKey}\n`)
+  // Generate root
+  const root = await deriveRoot(mnemonic)
 
+  // Derive wallet address at path 0
   const walletAddress = deriveAddress(root, 0)
+
   // Deriving addresses for example
   deriveAddress(root, 1)
   deriveAddress(root, 2)
@@ -30,15 +32,30 @@ bip39.mnemonicToSeed(mnemonic).then((seed) => {
 
   // FUND ACCOUNT WITH GHU
 
-  /* Example Transactions */
-  sendGHU(walletAddress)
-  // sendGHUSD(walletAddress)
-  // assignName(walletAddress)
-  // setMinLimit(walletAddress)
+  // Send transactions
+  // await sendGHU(walletAddress)
+  // await sendGHUSD(walletAddress)
+  // await assignName(walletAddress)
+  // await setMinLimit(walletAddress)
 
-  /* Example Calls (does not require GHU to execute) */
-  // resolveName()
-})
+  // Call contracts (does not require GHU to execute)
+  // await resolveName()
+}
+runDemo()
+
+function generateMnemonic() {
+  const mnemonic = bip39.generateMnemonic()
+  console.log(`mnemonic: ${mnemonic}`)
+  return mnemonic
+}
+
+async function deriveRoot(mnemonic) {
+  const seed = await bip39.mnemonicToSeed(mnemonic)
+  const root = hdkey.fromMasterSeed(seed)
+  const masterPrivateKey = root.privateKey.toString('hex')
+  console.log(`masterPrivateKey: ${masterPrivateKey}\n`)
+  return root
+}
 
 function deriveAddress(root, path) {
   console.log(`ADDRESS ${path}`)
@@ -251,8 +268,13 @@ async function setMinLimit(walletAddress) {
   }
 }
 
+// Creates a new GRC223 Token
+async function createToken(walletAddress) {
+
+}
+
 // Resolves a name in the Address Name Service Contract.
-// This des not require any GHU to execute.
+// This does not require any GHU to execute.
 async function resolveName() {
   const contractAddr = MAINNET ? ANS.mainnet : ANS.testnet
   const contract = new web3.eth.Contract(ANS.abi, contractAddr)
