@@ -34,6 +34,7 @@ bip39.mnemonicToSeed(mnemonic).then((seed) => {
   sendGHU(walletAddress)
   // sendGHUSD(walletAddress)
   // assignName(walletAddress)
+  // setMinLimit(walletAddress)
 
   /* Example Calls (does not require GHU to execute) */
   // resolveName()
@@ -135,7 +136,10 @@ async function sendGHUSD(walletAddress) {
       "stateMutability": "nonpayable",
       "type": "function"
     }, 
-    ['0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428', '1000000000000000000'],
+    [
+      'D5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428', // first input: to (address)
+      '1000000000000000000' // second input: amount (uint256)
+    ],
   )
 
   const serializedTx = await serializeTx({
@@ -178,7 +182,57 @@ async function assignName(walletAddress) {
       ],
       "constant": false
     }, 
-    ['testname'],
+    ['testname'], // first input: name (string)
+  )
+
+  const serializedTx = await serializeTx({
+    walletAddress,
+    to: MAINNET ? ANS.mainnet : ANS.testnet,
+    gasLimit: 100000,
+    value: 0,
+    data,
+  })
+
+  try {
+    const txid = await sendTx(serializedTx)
+    console.log(`txid: ${txid}`)
+  } catch (err) {
+    console.error(`tx error: ${err.message}`)
+  }
+}
+
+// Sets the min limit for an address in the Address Name Service Contract
+async function setMinLimit(walletAddress) {
+  // Construct data. Get this from the ABI: /contracts/ans.js
+  // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#encodefunctioncall
+  const data = web3.eth.abi.encodeFunctionCall(
+    {
+      "type": "function",
+      "stateMutability": "nonpayable",
+      "payable": false,
+      "outputs": [
+        {
+          "type": "bool",
+          "name": "success"
+        }
+      ],
+      "name": "setMinLimit",
+      "inputs": [
+        {
+          "type": "address",
+          "name": "addr"
+        },
+        {
+          "type": "uint8",
+          "name": "minLimit"
+        }
+      ],
+      "constant": false
+    }, 
+    [
+      'D5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428', // first input: addr (address)
+      4, // second input: minLimit (uint8)
+    ],
   )
 
   const serializedTx = await serializeTx({
