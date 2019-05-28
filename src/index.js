@@ -4,7 +4,7 @@ const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const Web3 = require('web3')
 const GRC223 = require('./contracts/grc223')
-const GHUSD = require('./contracts/ghusd')
+const JUSD = require('./contracts/jusd')
 const ANS = require('./contracts/ans')
 
 /* =============== */
@@ -35,7 +35,7 @@ async function runDemo() {
 
   // Send transactions
   await sendGHU(walletAddress)
-  // await sendGHUSD(walletAddress)
+  // await sendJUSD(walletAddress)
   // await assignName(walletAddress)
   // await setMinLimit(walletAddress)
   // await createToken(walletAddress)
@@ -137,9 +137,9 @@ async function sendGHU(walletAddress) {
   }
 }
 
-// Sends 1 GHUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
-async function sendGHUSD(walletAddress) {
-  // Construct data. Get this from the ABI: /contracts/ghusd.js
+// Sends 1 JUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
+async function sendJUSD(walletAddress) {
+  // Construct data. Get this from the ABI: /contracts/jusd.js
   // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#encodefunctioncall
   const data = web3.eth.abi.encodeFunctionCall(
     {
@@ -173,7 +173,7 @@ async function sendGHUSD(walletAddress) {
 
   const serializedTx = await serializeTx({
     walletAddress,
-    to: MAINNET ? GHUSD.mainnet : GHUSD.testnet,
+    to: MAINNET ? JUSD.mainnet : JUSD.testnet,
     gasLimit: 100000,
     data,
   })
