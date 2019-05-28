@@ -3,8 +3,8 @@ const hdkey = require('hdkey')
 const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const Web3 = require('web3')
-const GRC223 = require('./contracts/grc223')
-const GHUSD = require('./contracts/ghusd')
+const JRC223 = require('./contracts/jrc223')
+const JUSD = require('./contracts/jusd')
 const ANS = require('./contracts/ans')
 
 /* =============== */
@@ -12,8 +12,8 @@ const ANS = require('./contracts/ans')
 /* =============== */
 const MAINNET = false // true to make transactions on the mainnet
 
-const RPC_MAINNET = 'https://api.ghuchain.com'
-const RPC_TESTNET = 'https://testapi.ghuchain.com'
+const RPC_MAINNET = 'https://api.gojoychain.com'
+const RPC_TESTNET = 'https://testapi.gojoychain.com'
 const web3 = MAINNET ? new Web3(RPC_MAINNET) : new Web3(RPC_TESTNET)
 
 async function runDemo() {
@@ -31,16 +31,16 @@ async function runDemo() {
   deriveAddress(root, 2)
   deriveAddress(root, 3)
 
-  // FUND ACCOUNT WITH GHU
+  // FUND ACCOUNT WITH JOY
 
   // Send transactions
-  await sendGHU(walletAddress)
-  // await sendGHUSD(walletAddress)
+  await sendJOY(walletAddress)
+  // await sendJUSD(walletAddress)
   // await assignName(walletAddress)
   // await setMinLimit(walletAddress)
   // await createToken(walletAddress)
 
-  // Call transactions (does not require GHU to execute)
+  // Call transactions (does not require JOY to execute)
   // await resolveName()
 }
 runDemo()
@@ -121,8 +121,8 @@ function toLowestDenom(value, decimals) {
 /* SEND TRANSACTIONS 发送交易 */
 /* ========================= */
 
-// Sends 1 GHU (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
-async function sendGHU(walletAddress) {
+// Sends 1 JOY (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
+async function sendJOY(walletAddress) {
   const serializedTx = await serializeTx({
     walletAddress,
     to: '0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428',
@@ -137,9 +137,9 @@ async function sendGHU(walletAddress) {
   }
 }
 
-// Sends 1 GHUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
-async function sendGHUSD(walletAddress) {
-  // Construct data. Get this from the ABI: /contracts/ghusd.js
+// Sends 1 JUSD (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
+async function sendJUSD(walletAddress) {
+  // Construct data. Get this from the ABI: /contracts/jusd.js
   // https://web3js.readthedocs.io/en/1.0/web3-eth-abi.html#encodefunctioncall
   const data = web3.eth.abi.encodeFunctionCall(
     {
@@ -173,7 +173,7 @@ async function sendGHUSD(walletAddress) {
 
   const serializedTx = await serializeTx({
     walletAddress,
-    to: MAINNET ? GHUSD.mainnet : GHUSD.testnet,
+    to: MAINNET ? JUSD.mainnet : JUSD.testnet,
     gasLimit: 100000,
     data,
   })
@@ -277,7 +277,7 @@ async function setMinLimit(walletAddress) {
   }
 }
 
-// Creates a new GRC223 Token
+// Creates a new JRC223 Token
 async function createToken(walletAddress) {
   const name = 'Test Token'
   const symbol = 'TTT'
@@ -290,7 +290,7 @@ async function createToken(walletAddress) {
     [name, symbol, decimals, totalSupply, owner],
   )
   params = web3.utils.stripHexPrefix(params)
-  const data = GRC223.bytecode + params
+  const data = JRC223.bytecode + params
 
   const serializedTx = await serializeTx({
     walletAddress,
@@ -311,7 +311,7 @@ async function createToken(walletAddress) {
 /* ============================ */
 
 // Resolves a name in the Address Name Service Contract.
-// This does not require any GHU to execute.
+// This does not require any JOY to execute.
 async function resolveName() {
   const contractAddr = MAINNET ? ANS.mainnet : ANS.testnet
   const contract = new web3.eth.Contract(ANS.abi, contractAddr)

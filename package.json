@@ -1,7 +1,7 @@
 {
   "name": "demo",
-  "version": "1.0.0",
-  "description": "Demo for interacting with Ghuchain node",
+  "version": "1.1.0",
+  "description": "Demo for interacting with Gojoychain node",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ghuchain/demo.git"
+    "url": "git+https://github.com/gojoychain/demo.git"
   },
   "author": "Deric Walintukan <deric@ghuchain.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ghuchain/demo/issues"
+    "url": "https://github.com/gojoychain/demo/issues"
   },
-  "homepage": "https://github.com/ghuchain/demo#readme",
+  "homepage": "https://github.com/gojoychain/demo#readme",
   "dependencies": {
     "bip39": "^3.0.1",
     "ethereumjs-util": "^6.1.0",
