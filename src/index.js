@@ -3,7 +3,7 @@ const hdkey = require('hdkey')
 const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const Web3 = require('web3')
-const GRC223 = require('./contracts/grc223')
+const JRC223 = require('./contracts/jrc223')
 const JUSD = require('./contracts/jusd')
 const ANS = require('./contracts/ans')
 
@@ -31,16 +31,16 @@ async function runDemo() {
   deriveAddress(root, 2)
   deriveAddress(root, 3)
 
-  // FUND ACCOUNT WITH GHU
+  // FUND ACCOUNT WITH JOY
 
   // Send transactions
-  await sendGHU(walletAddress)
+  await sendJOY(walletAddress)
   // await sendJUSD(walletAddress)
   // await assignName(walletAddress)
   // await setMinLimit(walletAddress)
   // await createToken(walletAddress)
 
-  // Call transactions (does not require GHU to execute)
+  // Call transactions (does not require JOY to execute)
   // await resolveName()
 }
 runDemo()
@@ -121,8 +121,8 @@ function toLowestDenom(value, decimals) {
 /* SEND TRANSACTIONS 发送交易 */
 /* ========================= */
 
-// Sends 1 GHU (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
-async function sendGHU(walletAddress) {
+// Sends 1 JOY (18 decimals) to 0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428
+async function sendJOY(walletAddress) {
   const serializedTx = await serializeTx({
     walletAddress,
     to: '0xD5D087daABC73Fc6Cc5D9C1131b93ACBD53A2428',
@@ -277,7 +277,7 @@ async function setMinLimit(walletAddress) {
   }
 }
 
-// Creates a new GRC223 Token
+// Creates a new JRC223 Token
 async function createToken(walletAddress) {
   const name = 'Test Token'
   const symbol = 'TTT'
@@ -290,7 +290,7 @@ async function createToken(walletAddress) {
     [name, symbol, decimals, totalSupply, owner],
   )
   params = web3.utils.stripHexPrefix(params)
-  const data = GRC223.bytecode + params
+  const data = JRC223.bytecode + params
 
   const serializedTx = await serializeTx({
     walletAddress,
@@ -311,7 +311,7 @@ async function createToken(walletAddress) {
 /* ============================ */
 
 // Resolves a name in the Address Name Service Contract.
-// This does not require any GHU to execute.
+// This does not require any JOY to execute.
 async function resolveName() {
   const contractAddr = MAINNET ? ANS.mainnet : ANS.testnet
   const contract = new web3.eth.Contract(ANS.abi, contractAddr)
