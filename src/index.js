@@ -14,7 +14,10 @@ const MAINNET = false // true to make transactions on the mainnet
 
 const RPC_MAINNET = 'https://api.gojoychain.com'
 const RPC_TESTNET = 'https://testapi.gojoychain.com'
+const CHAIN_ID_MAINNET = 18
+const CHAIN_ID_TESTNET = 8899
 const web3 = MAINNET ? new Web3(RPC_MAINNET) : new Web3(RPC_TESTNET)
+const chainId = MAINNET ? CHAIN_ID_MAINNET : CHAIN_ID_TESTNET
 
 async function runDemo() {
   // Generate master seed phrase
@@ -83,6 +86,7 @@ async function serializeTx({ walletAddress, to, gasLimit, gasPrice, value, data 
 
   // Construct params
   const txParams = {
+    chainId,
     to,
     nonce: web3.utils.toHex(nonce),
     gasLimit: web3.utils.numberToHex(gasLimit || 21000),
